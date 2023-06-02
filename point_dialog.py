@@ -6,7 +6,6 @@ from qtpy.QtWidgets import (QDialog, QDialogButtonBox, QVBoxLayout, QLabel,
                             QGridLayout, QRadioButton, QLineEdit, QListWidget)
 
 
-
 class SelectDialog(QDialog):
     def __init__(self):
         super(SelectDialog, self).__init__()

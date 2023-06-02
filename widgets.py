@@ -28,6 +28,13 @@ class myWindow(QMainWindow):
         # display label
         self.displayimage = QLabel()
         self.displayimage.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        # title label
+        self.labellistname = QLabel("Label List")
+        # title label
+        self.imagelistname = QLabel("Image List")
+        # title label
+        self.loglabel = QLabel("Log")
+        
         # open images dir button
         self.openimagedir = QPushButton()
         self.openimagedir.setText("OpenImageDir")
@@ -43,6 +50,7 @@ class myWindow(QMainWindow):
         
         # labellist
         self.labellist = QListWidget()
+        self.imagelist = QListWidget()
         
         # open image or json file layout
         open_image_json_layout = QHBoxLayout()
@@ -57,7 +65,11 @@ class myWindow(QMainWindow):
         button_layout = QVBoxLayout()
         button_layout.addLayout(open_image_json_layout)
         button_layout.addLayout(switch_image_layout)
+        button_layout.addWidget(self.labellistname)
         button_layout.addWidget(self.labellist)
+        button_layout.addWidget(self.imagelistname)
+        button_layout.addWidget(self.imagelist)
+        button_layout.addWidget(self.loglabel)
         button_layout.addWidget(self.textBrowser)
 
         
@@ -69,8 +81,3 @@ class myWindow(QMainWindow):
         widget = QWidget()
         widget.setLayout(global_layout)
         self.setCentralWidget(widget)
-
-
-
-
-

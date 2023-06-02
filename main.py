@@ -118,6 +118,8 @@ class MainWindow(myWindow):
         if not self.labellist.items == None:
             self.labellist.itemClicked.connect(self.labellist_clicked)
             self.labellist.itemDoubleClicked.connect(self.labellist_doubleclicked)
+        if not self.imagelist.items == None:
+            self.imagelist.itemClicked.connect(self.imagelist_clicked)
 
     def outputWritten(self, text):
         cursor = self.textBrowser.textCursor()
@@ -130,8 +132,9 @@ class MainWindow(myWindow):
         self.image_path = QFileDialog.getExistingDirectory(None, "请选择文件路径")
         print("===> Now, you open this images dir: ", self.image_path)
         try:
-
             self.image_list = sorted(glob(f"{self.image_path}/*jpg"))
+            for im in self.image_list:
+                self.imagelist.addItem(osp.basename(im))
             self.load_image(self.image_list[0])
         except:
             pass
@@ -356,6 +359,22 @@ class MainWindow(myWindow):
             write_json(self.json_list[self.current_image_id], self.json_data)
         print("labellist_clicked: ", item.text())
         self.update()
+
+    def imagelist_clicked(self, item):
+        current_image_path = osp.join(self.image_path, item.text())
+        print("===> current_image_path: ", current_image_path)
+        self.load_image(current_image_path)
+        self.current_image_id = self.imagelist.row(item)
+        print("===> current_image_id: ", self.current_image_id)
+
+
+        # 加载 json 文件
+        try:
+            self.load_json(self.json_list[self.current_image_id])
+        except:
+            print("===> Not load json file!")
+
+
 
     def save_current_json(self):
         self.json_data["keypoints"] = self.keypoints
