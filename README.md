@@ -2,23 +2,23 @@
 
 ## 人体关键点
 
-Nose
-Left Eye
-Right Eye
-Left Ear
-Right Ear
-Left Shoulder
-Right Shoulder
-Left Elbow
-Right Elbow
-Left Wrist
-Right Wrist
-Left Hip
-Right Hip
-Left Knee
-Right Knee
-Left Ankle
-Right Ankle
+- Nose
+- Left Eye
+- Right Eye
+- Left Ear
+- Right Ear
+- Left Shoulder
+- Right Shoulder
+- Left Elbow
+- Right Elbow
+- Left Wrist
+- Right Wrist
+- Left Hip
+- Right Hip
+- Left Knee
+- Right Knee
+- Left Ankle
+- Right Ankle
 
 说明：
 包括但不限于以上 17 点，由于保存的 json 结果都是以字典键值对存储的，可随意更改。
@@ -72,7 +72,8 @@ python main.py
 3. 开始标注
     - 左键表示可见，标注点颜色为红色
     - 右键表示不可见，标注点颜色为绿色
-4. 双击右栏标注点标签可直接删除该点
+4. 单击右栏标注点标签则该点在图像上高亮显示
+5. 双击右栏标注点标签可直接删除该点
 
 说明：
 image 和 json 分别设置打开路径，方便管理。
@@ -82,8 +83,8 @@ image 和 json 分别设置打开路径，方便管理。
 
 ## 快捷键
 
-打开图像文件夹 -> i
-打开 json 文件夹 -> j
-保存 json 结果 -> Ctrl+s
-切换到上一张 -> a
-切换到下一张 -> d
+- 打开图像文件夹 -> i
+- 打开 json 文件夹 -> j
+- 保存 json 结果 -> Ctrl+s
+- 切换到上一张 -> a
+- 切换到下一张 -> d

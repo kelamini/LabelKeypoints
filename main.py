@@ -119,7 +119,7 @@ class MainWindow(myWindow):
         self.current_keypoint_name = "nose"
 
         if not self.labellist.items == None:
-            # self.labellist.itemClicked.connect(self.labellist_clicked)
+            self.labellist.itemClicked.connect(self.labellist_clicked)
             self.labellist.itemDoubleClicked.connect(self.labellist_doubleclicked)
 
 
@@ -347,14 +347,12 @@ class MainWindow(myWindow):
         cat = item.text().split("@")[-1]
         keypoints = self.keypoints[cats][cat]
         print("labellist_clicked: ", keypoints)
-
-        # self.dialogkeypoints()
+        self.current_keypoints = keypoints[0:-1]
+        self.update()
 
     def labellist_doubleclicked(self, item):
         cats = item.text().split("@")[0].split("$")[-1]
         cat = item.text().split("@")[-1]
-
-        keypoints = self.keypoints[cats][cat]
         self.labellist.takeItem(self.labellist.row(item))
         if cat in self.keypoints[cats]:
             self.keypoints[cats].pop(cat)
