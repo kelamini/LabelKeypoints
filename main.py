@@ -366,7 +366,7 @@ class MainWindow(myWindow):
         self.load_image(current_image_path)
         self.current_image_id = self.imagelist.row(item)
         print("===> current_image_id: ", self.current_image_id)
-
+        self.current_keypoints = [0, 0]
 
         # 加载 json 文件
         try:
@@ -374,11 +374,10 @@ class MainWindow(myWindow):
         except:
             print("===> Not load json file!")
 
-
-
     def save_current_json(self):
-        self.json_data["keypoints"] = self.keypoints
-        write_json(self.json_list[self.current_image_id], self.json_data)
+        if np.sum(self.current_keypoints) > 0:
+            self.json_data["keypoints"] = self.keypoints
+            write_json(self.json_list[self.current_image_id], self.json_data)
 
 
 if __name__ == "__main__":
