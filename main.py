@@ -14,7 +14,7 @@ from qtpy.QtCore import Qt, QSize, QTimer, QEventLoop, QRect
 from qtpy.QtWidgets import QApplication, QMainWindow, QFileDialog, QMenu, QLabel
 from PyQt5.QtWidgets import QAction
 
-from widgets import myWindow
+from widgets import myWindow, __appname__
 from point_dialog import SelectDialog
 
 
@@ -77,7 +77,6 @@ class MainWindow(myWindow):
         # painter
         self.ptr = QPainter()
 
-        
         # 输出重定向到 textbrowser
         sys.stdout = EmittingStr()
         sys.stdout.textWritten.connect(self.outputWritten)
@@ -99,12 +98,10 @@ class MainWindow(myWindow):
         self.muopenjsondir.setShortcut('J')
         self.muopenjsondir.triggered.connect(self.open_json_dir)
         self.filemenu.addAction(self.muopenjsondir)
-        
         self.musavejson = QAction('SaveJson(&J)', self)
         self.musavejson.setShortcut('Ctrl+S')
         self.musavejson.triggered.connect(self.save_current_json)
         self.filemenu.addAction(self.musavejson)
-
         self.munextimage = QAction('NextImage(&D)', self)
         self.munextimage.setShortcut('D')
         self.munextimage.triggered.connect(self.next_image)
@@ -121,7 +118,6 @@ class MainWindow(myWindow):
         if not self.labellist.items == None:
             self.labellist.itemClicked.connect(self.labellist_clicked)
             self.labellist.itemDoubleClicked.connect(self.labellist_doubleclicked)
-
 
     def outputWritten(self, text):
         cursor = self.textBrowser.textCursor()
@@ -368,6 +364,7 @@ class MainWindow(myWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    app.setApplicationName(__appname__)
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())

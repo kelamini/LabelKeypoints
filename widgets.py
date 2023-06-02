@@ -2,16 +2,20 @@ import os
 import sys
 import os.path as osp
 from qtpy.QtCore import Qt, QSize, QRect
+from qtpy.QtGui import QIcon
 from qtpy.QtWidgets import (QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, 
                             QLabel, QPushButton, QFileDialog, QTextBrowser,
                             QGridLayout, QRadioButton, QMenuBar, QListWidget)
+
+__appname__ = "COCO Person Keypoints"
 
 
 class myWindow(QMainWindow):
     def __init__(self):
         super(myWindow, self).__init__()
         self.resize(QSize(1296, 720))
-        self.setWindowTitle("COCO 人体关键点标注工具")
+        self.setWindowTitle(__appname__)
+        self.setWindowIcon(QIcon("icon/coffe.png"))
 
         # textbrowser
         self.textBrowser = QTextBrowser()
