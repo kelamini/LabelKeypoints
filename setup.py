@@ -85,7 +85,6 @@ def get_long_description():
 
 def main():
     version = get_version()
-
     if sys.argv[1] == "release":
         try:
             import github2pypi  # NOQA
@@ -95,14 +94,12 @@ def main():
                 file=sys.stderr,
             )
             sys.exit(1)
-
         if not distutils.spawn.find_executable("twine"):
             print(
                 "Please install twine:\n\n\tpip install twine\n",
                 file=sys.stderr,
             )
             sys.exit(1)
-
         commands = [
             "git push origin main",
             "git tag v{:s}".format(version),
@@ -117,7 +114,7 @@ def main():
 
     setup(
         name="labelkeys",
-        version="0.1.0",
+        version=version,
         packages=find_packages(),
         description="Image Polygonal Annotation with Python",
         long_description=get_long_description(),
@@ -142,15 +139,10 @@ def main():
             "Programming Language :: Python :: 3.9",
             "Programming Language :: Python :: 3 :: Only",
         ],
-        package_data={"labelkeys": ["icons/*",]},
+        package_data={"labelkeys": ["icons/*"]},
         entry_points={
             "console_scripts": [
                 "labelkeys=labelkeys.main:main",
-                # "labelme=labelme.__main__:main",
-                # "labelme_draw_json=labelme.cli.draw_json:main",
-                # "labelme_draw_label_png=labelme.cli.draw_label_png:main",
-                # "labelme_json_to_dataset=labelme.cli.json_to_dataset:main",
-                # "labelme_on_docker=labelme.cli.on_docker:main",
             ],
         },
     )

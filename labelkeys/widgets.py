@@ -15,7 +15,6 @@ class myWindow(QMainWindow):
         super(myWindow, self).__init__()
         self.resize(QSize(1296, 720))
         self.setWindowTitle(__appname__)
-        self.setWindowIcon(QIcon("icons/coffe.png"))
 
         # textbrowser
         self.textBrowser = QTextBrowser()

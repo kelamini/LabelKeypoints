@@ -8,7 +8,7 @@ from glob import glob
 from collections import defaultdict
 from functools import partial
 
-from qtpy.QtGui import (QPixmap, QImage, QTextCursor, QPainter, QPen, QColor, QPainterPath)
+from qtpy.QtGui import (QPixmap, QImage, QTextCursor, QPainter, QPen, QColor, QIcon)
 from qtpy import QtCore
 from qtpy.QtCore import Qt, QSize, QTimer, QEventLoop, QRect
 from qtpy.QtWidgets import QApplication, QMainWindow, QFileDialog, QMenu, QLabel
@@ -16,6 +16,8 @@ from PyQt5.QtWidgets import QAction
 
 from labelkeys.widgets import myWindow, __appname__
 from labelkeys.point_dialog import SelectDialog
+
+here = osp.dirname(osp.abspath(__file__))
 
 
 class EmittingStr(QtCore.QObject):
@@ -162,9 +164,9 @@ class MainWindow(myWindow):
             return
         image = cv.imread(filepath)
         self.imageheight, self.imagewidth, _ = image.shape
-        
+        print(f"===> ({self.current_image_id+1}/{len(self.image_list)}) Current image: {osp.basename(self.image_list[self.current_image_id])}")
         self.scale = np.round(self.height() / max(self.imagewidth, self.imageheight), 1)
-        print("===> scale: ", self.scale)
+        # print("===> scale: ", self.scale)
         self.current_image = QImage(image.data, self.imagewidth, self.imageheight, QImage.Format_BGR888)
         self.current_image = QPixmap.fromImage(self.current_image)
         self.current_image = self.current_image.scaled(self.current_image.width()*self.scale, self.current_image.height()*self.scale)
@@ -227,7 +229,7 @@ class MainWindow(myWindow):
         if self.current_image_id < len(self.image_list)-1:
             self.update_save_json()
             self.current_image_id += 1
-            print("===> Current image number: ", self.current_image_id)
+            print(f"===> ({self.current_image_id+1}/{len(self.image_list)}) Current image: {osp.basename(self.image_list[self.current_image_id])}")
             self.load_image(self.image_list[self.current_image_id])
 
             # 加载 json 文件
@@ -243,7 +245,7 @@ class MainWindow(myWindow):
         if self.current_image_id > 0:
             self.update_save_json()
             self.current_image_id -= 1
-            print("===> Current image number: ", self.current_image_id)
+            print(f"===> ({self.current_image_id+1}/{len(self.image_list)}) Current image: {osp.basename(self.image_list[self.current_image_id])}")
             self.load_image(self.image_list[self.current_image_id])
             
             # 加载 json 文件
@@ -325,21 +327,15 @@ class MainWindow(myWindow):
 
         if self.dlg.exec_():
             print("===> Success!")
-            print("self.current_category_name:", self.current_category_name)
-            print("self.current_keypoint_name: ", self.current_keypoint_name)
+            print("===> current category:", self.current_category_name)
+            print("===> current keypoint: ", self.current_keypoint_name)
 
             if not self.current_category_name in self.keypoints:
                 self.keypoints[self.current_category_name] = dict()
             self.keypoints[self.current_category_name][self.current_keypoint_name] = [self.current_keypoints[0]/self.scale, self.current_keypoints[1]/self.scale, self.pos_visual]
-            
-            # if self.current_keypoint_name in self.categoties:
-            #     self.categoties[self.current_keypoint_name] = [int(self.current_pos[0]), int(self.current_pos[1]), self.pos_visual]
-            # if not self.current_category_name in self.keypoints:
-            #     self.keypoints[self.current_category_name] = self.categoties
-
             self.labellist.addItem(f"${self.current_category_name}@{self.current_keypoint_name}")
             self.labellist.sortItems()
-            print("===> keypoints: ",  self.keypoints)
+            # print("===> keypoints: ",  self.keypoints)
         else:
             print("===> Cancel!")
 
@@ -366,7 +362,7 @@ class MainWindow(myWindow):
         cats = item.text().split("@")[0].split("$")[-1]
         cat = item.text().split("@")[-1]
         keypoints = self.keypoints[cats][cat]
-        print("labellist_clicked: ", keypoints)
+        print(f"===> {item.text()} clicked: ", keypoints)
         self.current_keypoints = [int(i*self.scale) for i in keypoints[0:-1]]
         self.update()
 
@@ -378,15 +374,15 @@ class MainWindow(myWindow):
             self.keypoints[cats].pop(cat)
             self.json_data["keypoints"] = self.keypoints
             # write_json(self.json_list[self.current_image_id], self.json_data)
-        print("labellist_clicked: ", item.text())
+        print(f"===> {item.text()} deleted")
         self.update()
 
     def imagelist_clicked(self, item):
         current_image_path = osp.join(self.image_path, item.text())
-        print("===> current_image_path: ", current_image_path)
-        self.load_image(current_image_path)
+        # print("===> current_image_path: ", current_image_path)
         self.current_image_id = self.imagelist.row(item)
-        print("===> current_image_id: ", self.current_image_id)
+        self.load_image(current_image_path)
+        # print("===> current_image_id: ", self.current_image_id)
         self.current_keypoints = [0, 0]
 
         # 加载 json 文件
@@ -405,6 +401,7 @@ class MainWindow(myWindow):
 def main():
     app = QApplication(sys.argv)
     app.setApplicationName(__appname__)
+    app.setWindowIcon(QIcon(osp.join(":/", here, "icons/coffe.png")))
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
