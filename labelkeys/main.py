@@ -63,14 +63,12 @@ class MainWindow(myWindow):
         self.current_keypoints = [0, 0]
         self.pos_visual = None
         self.pen_visual = QPen()
-        self.pen_visual.setWidth(5)
-        self.pen_visual.setColor(Qt.red)
+        self.pen_visual.setWidth(8)
         self.pen_invisual = QPen()
-        self.pen_invisual.setWidth(5)
-        self.pen_invisual.setColor(Qt.green)
+        self.pen_invisual.setWidth(8)
         self.pen_pre = QPen()
         self.pen_pre.setWidth(12)
-        self.pen_pre.setColor(Qt.blue)
+        self.pen_pre.setBrush(Qt.red)
 
         # dialog
         self.dlg = SelectDialog()
@@ -136,6 +134,7 @@ class MainWindow(myWindow):
             for im in self.image_list:
                 self.imagelist.addItem(osp.basename(im))
             self.load_image(self.image_list[0])
+            self.imagelist.sortItems()
         except:
             pass
 
@@ -214,6 +213,8 @@ class MainWindow(myWindow):
                     self.labellist.addItem(f"${cats}@{cat}")
         else:
             self.keypoints = defaultdict(dict)
+        self.dlg.labellist.sortItems()
+        self.labellist.sortItems()
         self.update()
 
 
@@ -251,23 +252,39 @@ class MainWindow(myWindow):
             except:
                 print("===> Not load json file!")
 
+    def get_color_from_name(self, name):
+        color = QColor()
+        color_map = dict()
+        color_list = list()
+        for color_name in color.colorNames():
+            color_list.append(color_name)
+        step = len(color.colorNames()) // len(self.dlg.radiobuttondict)
+        for i, cat in enumerate(self.dlg.radiobuttondict):
+            color_map[cat] = color_list[i+step]
+        
+        self.color_name = color_map[name]
+        # print("color_name", self.color_name)
+
     def paintEvent(self, event):
         self.ptr.begin(self)
         if self.current_image:
             self.left_point = (abs(self.displayimage.width() - self.current_image.width())) // 2
             self.top_point = (abs(self.height() - self.current_image.height())) // 2
             self.ptr.drawPixmap(self.left_point, self.top_point, self.current_image)
-            self.ptr.setPen(self.pen_pre)
-            self.ptr.drawPoint(int(self.current_keypoints[0]+self.left_point), int(self.current_keypoints[1]+self.top_point))
-
             for cats, keypoints in self.keypoints.items():
                 for cat, keypoint in keypoints.items():
                     if keypoint[2] == 0:
+                        self.get_color_from_name(cat)
+                        self.pen_invisual.setColor(QColor(self.color_name))
                         self.ptr.setPen(self.pen_invisual)
                         self.ptr.drawPoint(int(keypoint[0]*self.scale+self.left_point), int(keypoint[1]*self.scale+self.top_point))
                     if keypoint[2] == 1:
+                        self.get_color_from_name(cat)
+                        self.pen_visual.setColor(QColor(self.color_name))
                         self.ptr.setPen(self.pen_visual)
                         self.ptr.drawPoint(int(keypoint[0]*self.scale+self.left_point), int(keypoint[1]*self.scale+self.top_point))
+            self.ptr.setPen(self.pen_pre)
+            self.ptr.drawPoint(int(self.current_keypoints[0]+self.left_point), int(self.current_keypoints[1]+self.top_point))
         self.ptr.end()
 
     def mousePressEvent(self, event):
