@@ -1,4 +1,0 @@
-qtpy
-pyqy5
-numpy
-opencv

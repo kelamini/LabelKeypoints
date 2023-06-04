@@ -7,7 +7,7 @@ from qtpy.QtWidgets import (QMainWindow, QWidget, QHBoxLayout, QVBoxLayout,
                             QLabel, QPushButton, QFileDialog, QTextBrowser,
                             QGridLayout, QRadioButton, QMenuBar, QListWidget)
 
-__appname__ = "COCO Person Keypoints"
+from labelkeys import __appname__
 
 
 class myWindow(QMainWindow):
@@ -15,7 +15,7 @@ class myWindow(QMainWindow):
         super(myWindow, self).__init__()
         self.resize(QSize(1296, 720))
         self.setWindowTitle(__appname__)
-        self.setWindowIcon(QIcon("icon/coffe.png"))
+        self.setWindowIcon(QIcon("icons/coffe.png"))
 
         # textbrowser
         self.textBrowser = QTextBrowser()

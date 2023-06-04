@@ -14,8 +14,8 @@ from qtpy.QtCore import Qt, QSize, QTimer, QEventLoop, QRect
 from qtpy.QtWidgets import QApplication, QMainWindow, QFileDialog, QMenu, QLabel
 from PyQt5.QtWidgets import QAction
 
-from widgets import myWindow, __appname__
-from point_dialog import SelectDialog
+from labelkeys.widgets import myWindow, __appname__
+from labelkeys.point_dialog import SelectDialog
 
 
 class EmittingStr(QtCore.QObject):
@@ -385,9 +385,13 @@ class MainWindow(myWindow):
             print("Save result to: ", self.json_list[self.current_image_id])
 
 
-if __name__ == "__main__":
+def main():
     app = QApplication(sys.argv)
     app.setApplicationName(__appname__)
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()

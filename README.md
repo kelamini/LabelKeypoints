@@ -1,10 +1,12 @@
-# COCO 人体关键点标注工具
+# 人体关键点标注工具
 
 ## 人体关键点
 
 - Nose
 - Left Eye
 - Right Eye
+- Left Mouth
+- Right Mouth
 - Left Ear
 - Right Ear
 - Left Shoulder
@@ -19,9 +21,6 @@
 - Right Knee
 - Left Ankle
 - Right Ankle
-
-说明：
-包括但不限于以上 17 点，由于保存的 json 结果都是以字典键值对存储的，可随意更改。
 
 
 ## 数据结构
@@ -54,14 +53,14 @@
 - "keypoints": 标注的关键点
 
 
-## 安装 && 使用
+## 安装 && 打开
 
 ```bash
-conda create -n labelcoco python=3.7
-conda activate labelcoco
-pip install -r requirements.txt
+conda create -n labelkeys python=3.7    # conda 创建环境
+conda activate labelkeys    # 激活环境
+pip install .   # 安装
 
-python main.py
+labelkeys   # 打开软件
 ```
 
 
