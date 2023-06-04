@@ -24,6 +24,10 @@ class SelectDialog(QDialog):
         self.lefteye.setText("Left Eye")
         self.righteye = QRadioButton()
         self.righteye.setText("Right Eye")
+        self.leftmouth = QRadioButton()
+        self.leftmouth.setText("Left Mouth")
+        self.rightmouth = QRadioButton()
+        self.rightmouth.setText("Right Mouth")
         self.leftear = QRadioButton()
         self.leftear.setText("Left Ear")
         self.rightear = QRadioButton()
@@ -55,6 +59,7 @@ class SelectDialog(QDialog):
 
         self.radiobuttondict = {"nose": self.nose, 
                                 "lefteye": self.lefteye, "righteye": self.righteye,
+                                "leftmouth": self.leftmouth, "rightmouth": self.rightmouth,
                                 "leftear": self.leftear, "rightear": self.rightear,
                                 "leftshoulder": self.leftshoulder, "rightshoulder": self.rightshoulder,
                                 "leftelbow": self.leftelbow, "rightelbow": self.rightelbow,
@@ -69,20 +74,24 @@ class SelectDialog(QDialog):
         gridLayout.addWidget(self.nose, 0, 0)
         gridLayout.addWidget(self.lefteye, 1, 0)
         gridLayout.addWidget(self.righteye, 1, 1)
-        gridLayout.addWidget(self.leftear, 2, 0)
-        gridLayout.addWidget(self.rightear, 2, 1)
-        gridLayout.addWidget(self.leftshoulder, 3, 0)
-        gridLayout.addWidget(self.rightshoulder, 3, 1)
-        gridLayout.addWidget(self.leftelbow, 4, 0)
-        gridLayout.addWidget(self.rightelbow, 4, 1)
-        gridLayout.addWidget(self.leftwrist, 5, 0)
-        gridLayout.addWidget(self.rightwrist, 5, 1)
-        gridLayout.addWidget(self.lefthip, 6, 0)
-        gridLayout.addWidget(self.righthip, 6, 1)
-        gridLayout.addWidget(self.leftknee, 7, 0)
-        gridLayout.addWidget(self.rightknee, 7, 1)
-        gridLayout.addWidget(self.leftankle, 8, 0)
-        gridLayout.addWidget(self.rightankle, 8, 1)
+
+        gridLayout.addWidget(self.leftmouth, 2, 0)
+        gridLayout.addWidget(self.rightmouth, 2, 1)
+
+        gridLayout.addWidget(self.leftear, 3, 0)
+        gridLayout.addWidget(self.rightear, 3, 1)
+        gridLayout.addWidget(self.leftshoulder, 4, 0)
+        gridLayout.addWidget(self.rightshoulder, 4, 1)
+        gridLayout.addWidget(self.leftelbow, 5, 0)
+        gridLayout.addWidget(self.rightelbow, 5, 1)
+        gridLayout.addWidget(self.leftwrist, 6, 0)
+        gridLayout.addWidget(self.rightwrist, 6, 1)
+        gridLayout.addWidget(self.lefthip, 7, 0)
+        gridLayout.addWidget(self.righthip, 7, 1)
+        gridLayout.addWidget(self.leftknee, 8, 0)
+        gridLayout.addWidget(self.rightknee, 8, 1)
+        gridLayout.addWidget(self.leftankle, 9, 0)
+        gridLayout.addWidget(self.rightankle, 9, 1)
 
 
         global_layout = QVBoxLayout()

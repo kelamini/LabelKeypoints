@@ -36,11 +36,11 @@
 
 "keypoints": {
     "category_1": {
-        "nose": [int, int, 0 or 1],
+        "nose": [float, float, 0 or 1],
         ...
     },
     "category_2": {
-        "nose": [int, int, 0 or 1],
+        "nose": [float, float, 0 or 1],
         ...
     },
     ...

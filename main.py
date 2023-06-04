@@ -163,8 +163,12 @@ class MainWindow(myWindow):
             return
         image = cv.imread(filepath)
         self.imageheight, self.imagewidth, _ = image.shape
-        self.current_image = QImage(image.data, image.shape[1], image.shape[0], QImage.Format_BGR888)
+        
+        self.scale = np.round(self.height() / max(self.imagewidth, self.imageheight), 1)
+        print("===> scale: ", self.scale)
+        self.current_image = QImage(image.data, self.imagewidth, self.imageheight, QImage.Format_BGR888)
         self.current_image = QPixmap.fromImage(self.current_image)
+        self.current_image = self.current_image.scaled(self.current_image.width()*self.scale, self.current_image.height()*self.scale)
         # self.displayimage.setPixmap(self.current_image)
         self.update()
 
@@ -260,10 +264,10 @@ class MainWindow(myWindow):
                 for cat, keypoint in keypoints.items():
                     if keypoint[2] == 0:
                         self.ptr.setPen(self.pen_invisual)
-                        self.ptr.drawPoint(int(keypoint[0]+self.left_point), int(keypoint[1]+self.top_point))
+                        self.ptr.drawPoint(int(keypoint[0]*self.scale+self.left_point), int(keypoint[1]*self.scale+self.top_point))
                     if keypoint[2] == 1:
                         self.ptr.setPen(self.pen_visual)
-                        self.ptr.drawPoint(int(keypoint[0]+self.left_point), int(keypoint[1]+self.top_point))
+                        self.ptr.drawPoint(int(keypoint[0]*self.scale+self.left_point), int(keypoint[1]*self.scale+self.top_point))
         self.ptr.end()
 
     def mousePressEvent(self, event):
@@ -309,7 +313,7 @@ class MainWindow(myWindow):
 
             if not self.current_category_name in self.keypoints:
                 self.keypoints[self.current_category_name] = dict()
-            self.keypoints[self.current_category_name][self.current_keypoint_name] = [int(self.current_pos[0]), int(self.current_pos[1]), self.pos_visual]
+            self.keypoints[self.current_category_name][self.current_keypoint_name] = [self.current_keypoints[0]/self.scale, self.current_keypoints[1]/self.scale, self.pos_visual]
             
             # if self.current_keypoint_name in self.categoties:
             #     self.categoties[self.current_keypoint_name] = [int(self.current_pos[0]), int(self.current_pos[1]), self.pos_visual]
@@ -346,7 +350,7 @@ class MainWindow(myWindow):
         cat = item.text().split("@")[-1]
         keypoints = self.keypoints[cats][cat]
         print("labellist_clicked: ", keypoints)
-        self.current_keypoints = keypoints[0:-1]
+        self.current_keypoints = [int(i*self.scale) for i in keypoints[0:-1]]
         self.update()
 
     def labellist_doubleclicked(self, item):
@@ -356,7 +360,7 @@ class MainWindow(myWindow):
         if cat in self.keypoints[cats]:
             self.keypoints[cats].pop(cat)
             self.json_data["keypoints"] = self.keypoints
-            write_json(self.json_list[self.current_image_id], self.json_data)
+            # write_json(self.json_list[self.current_image_id], self.json_data)
         print("labellist_clicked: ", item.text())
         self.update()
 
@@ -378,6 +382,7 @@ class MainWindow(myWindow):
         if np.sum(self.current_keypoints) > 0:
             self.json_data["keypoints"] = self.keypoints
             write_json(self.json_list[self.current_image_id], self.json_data)
+            print("Save result to: ", self.json_list[self.current_image_id])
 
 
 if __name__ == "__main__":
