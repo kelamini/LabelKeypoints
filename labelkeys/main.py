@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import shutil
 import cv2 as cv
 import numpy as np
 import os.path as osp
@@ -12,7 +13,8 @@ from qtpy.QtGui import (QPixmap, QImage, QTextCursor, QPainter, QPen, QColor, QI
 from qtpy import QtCore
 from qtpy.QtCore import Qt, QSize, QTimer, QEventLoop, QRect
 from qtpy.QtWidgets import QApplication, QMainWindow, QFileDialog, QMenu, QLabel
-from PyQt5.QtWidgets import QAction
+# from PyQt5.QtWidgets import QAction
+from qtpy import QtWidgets
 
 from labelkeys.widgets import myWindow, __appname__
 from labelkeys.point_dialog import SelectDialog
@@ -90,23 +92,23 @@ class MainWindow(myWindow):
         self.previmage.clicked.connect(self.previous_image)
 
         # menubar
-        self.muopenimagedir = QAction('OpenImage(&I)', self)
+        self.muopenimagedir = QtWidgets.QAction('OpenImage(&I)', self)
         self.muopenimagedir.setShortcut('I')
         self.muopenimagedir.triggered.connect(self.open_image_dir)
         self.filemenu.addAction(self.muopenimagedir)
-        self.muopenjsondir = QAction('OpenJson(&J)', self)
+        self.muopenjsondir = QtWidgets.QAction('OpenJson(&J)', self)
         self.muopenjsondir.setShortcut('J')
         self.muopenjsondir.triggered.connect(self.open_json_dir)
         self.filemenu.addAction(self.muopenjsondir)
-        self.musavejson = QAction('SaveJson(&J)', self)
+        self.musavejson = QtWidgets.QAction('SaveJson(&J)', self)
         self.musavejson.setShortcut('Ctrl+S')
         self.musavejson.triggered.connect(self.save_current_json)
         self.filemenu.addAction(self.musavejson)
-        self.munextimage = QAction('NextImage(&D)', self)
+        self.munextimage = QtWidgets.QAction('NextImage(&D)', self)
         self.munextimage.setShortcut('D')
         self.munextimage.triggered.connect(self.next_image)
         self.editmenu.addAction(self.munextimage)
-        self.mupreviousimage = QAction('PreviousImage(&A)', self)
+        self.mupreviousimage = QtWidgets.QAction('PreviousImage(&A)', self)
         self.mupreviousimage.setShortcut('A')
         self.mupreviousimage.triggered.connect(self.previous_image)
         self.editmenu.addAction(self.mupreviousimage)
@@ -147,6 +149,11 @@ class MainWindow(myWindow):
             if not filepath in self.json_list:
                 self.json_list.append(osp.join(self.json_path, filename+".json"))
         self.json_list = sorted(self.json_list)
+        # for jsonpath in self.json_list:
+        #     filename = osp.basename(jsonpath).replace(".json", "")
+        #     filepath = osp.join(self.image_path, filename+".jpg")
+        #     if not filepath in self.image_list:
+        #         os.remove(jsonpath)
     
     def open_json_dir(self):
         self.json_path = QFileDialog.getExistingDirectory(None, "请选择文件路径")
@@ -216,6 +223,7 @@ class MainWindow(myWindow):
                     self.dlg.labellist.addItem(cats)
                 for cat, keypoint in keypoints.items():
                     self.labellist.addItem(f"${cats}@{cat}")
+                    # self.keypoints[cats][cat] = keypoint
         else:
             self.keypoints = defaultdict(dict)
         self.dlg.labellist.sortItems()
