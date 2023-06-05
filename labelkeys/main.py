@@ -163,13 +163,14 @@ class MainWindow(myWindow):
             print(f"===> {filepath} not exists!")
             return
         image = cv.imread(filepath)
-        self.imageheight, self.imagewidth, _ = image.shape
+        image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
+        self.imageheight, self.imagewidth, self.channel = image.shape
         print(f"===> ({self.current_image_id+1}/{len(self.image_list)}) Current image: {osp.basename(self.image_list[self.current_image_id])}")
         self.scale = np.round(self.height() / max(self.imagewidth, self.imageheight), 1)
         if int(self.imagewidth/self.imageheight) == int(self.displayimage.width()/self.height()):
             self.scale = round(0.8*(self.height()/self.imageheight), 1)
         print("===> scale: ", self.scale)
-        self.current_image = QImage(image.data, self.imagewidth, self.imageheight, QImage.Format_BGR888)
+        self.current_image = QImage(image.data, self.imagewidth, self.imageheight, self.imagewidth*self.channel, QImage.Format_RGB888)
         self.current_image = QPixmap.fromImage(self.current_image)
         self.current_image = self.current_image.scaled(self.current_image.width()*self.scale, self.current_image.height()*self.scale)
         # self.displayimage.setPixmap(self.current_image)
