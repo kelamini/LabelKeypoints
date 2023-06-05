@@ -57,7 +57,7 @@ class MainWindow(myWindow):
         self.current_image = None
         self.current_image_id = 0
         self.categories_name = set()
-        self.current_category_name = None
+        self.current_category_name = "person_0"
         self.current_keypoint_name = None
         self.keypoints = defaultdict(dict)
         self.categoties = defaultdict(dict)
@@ -190,6 +190,8 @@ class MainWindow(myWindow):
             "imageHeight": self.imageheight,
             "keypoints": defaultdict(dict),
         }
+        self.dlg.categories.setText("person_0")
+        self.update()
 
     def update_save_json(self):
         if self.current_image:
@@ -224,14 +226,15 @@ class MainWindow(myWindow):
                 for cat, keypoint in keypoints.items():
                     self.labellist.addItem(f"${cats}@{cat}")
                     # self.keypoints[cats][cat] = keypoint
+            if len(self.keypoints) == 0:
+                self.current_category_name = "person_0"
+                self.dlg.categories.setText("person_0")
+                self.update()
         else:
             self.keypoints = defaultdict(dict)
         self.dlg.labellist.sortItems()
         self.labellist.sortItems()
         self.update()
-
-
-        # print("===> keypoints: ", self.keypoints)
 
     def next_image(self):
         if len(self.image_list) == 0:
@@ -349,6 +352,7 @@ class MainWindow(myWindow):
             # print("===> keypoints: ",  self.keypoints)
         else:
             print("===> Cancel!")
+        self.update()
 
     def validated(self):
         if not self.current_category_name in self.categories_name:
@@ -384,8 +388,9 @@ class MainWindow(myWindow):
         if cat in self.keypoints[cats]:
             self.keypoints[cats].pop(cat)
             self.json_data["keypoints"] = self.keypoints
-            # write_json(self.json_list[self.current_image_id], self.json_data)
+            write_json(self.json_list[self.current_image_id], self.json_data)
         print(f"===> {item.text()} deleted")
+        self.current_keypoints = [0, 0]
         self.update()
 
     def imagelist_clicked(self, item):
