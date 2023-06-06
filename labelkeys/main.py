@@ -134,11 +134,18 @@ class MainWindow(myWindow):
         self.image_path = QFileDialog.getExistingDirectory(None, "请选择文件路径")
         print("===> Now, you open this images dir: ", self.image_path)
         try:
+            self.json_list = list()
+            self.keypoints = defaultdict(dict)
+            self.categoties = defaultdict(dict)
+            self.current_image_id = 0
+            self.imagelist.clear()
+            self.labellist.clear()
             self.image_list = sorted(glob(f"{self.image_path}/*jpg"))
             for im in self.image_list:
                 self.imagelist.addItem(osp.basename(im))
             self.load_image(self.image_list[0])
             self.imagelist.sortItems()
+
         except:
             pass
 
