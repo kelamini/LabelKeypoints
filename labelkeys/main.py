@@ -8,6 +8,8 @@ import os.path as osp
 from glob import glob
 from collections import defaultdict
 from functools import partial
+import argparse
+import yaml
 
 from qtpy.QtGui import (QPixmap, QImage, QTextCursor, QPainter, QPen, QColor, QIcon)
 from qtpy import QtCore
@@ -45,7 +47,7 @@ def write_json(filepath, data):
 
 
 class MainWindow(myWindow):
-    def __init__(self):
+    def __init__(self, conf):
         super(MainWindow, self).__init__()
         self.image_path = None
         self.json_path = None
@@ -73,6 +75,7 @@ class MainWindow(myWindow):
         self.pen_pre = QPen()
         self.pen_pre.setWidth(12)
         self.pen_pre.setBrush(Qt.red)
+        self.color_map = conf["colormap"]
 
         # dialog
         self.dlg = SelectDialog()
@@ -112,6 +115,10 @@ class MainWindow(myWindow):
         self.mupreviousimage.setShortcut('A')
         self.mupreviousimage.triggered.connect(self.previous_image)
         self.editmenu.addAction(self.mupreviousimage)
+        self.murevocation = QtWidgets.QAction('Revocation(&Z)', self)
+        self.murevocation.setShortcut('Z')
+        self.murevocation.triggered.connect(self.revocation)
+        self.editmenu.addAction(self.murevocation)
 
         self.dlg.radiobuttondict["nose"].setChecked(True)
         self.dlg.radiobuttondict["nose"].setStyleSheet("background-color: red")
@@ -297,13 +304,13 @@ class MainWindow(myWindow):
             for cats, keypoints in self.keypoints.items():
                 for cat, keypoint in keypoints.items():
                     if keypoint[2] == 0:
-                        self.get_color_from_name(cat)
-                        self.pen_invisual.setColor(QColor(self.color_name))
+                        # self.get_color_from_name(cat)
+                        self.pen_invisual.setColor(QColor(self.color_map[cat][0], self.color_map[cat][1], self.color_map[cat][2]))
                         self.ptr.setPen(self.pen_invisual)
                         self.ptr.drawPoint(int(keypoint[0]*self.scale+self.left_point), int(keypoint[1]*self.scale+self.top_point))
                     if keypoint[2] == 1:
-                        self.get_color_from_name(cat)
-                        self.pen_visual.setColor(QColor(self.color_name))
+                        # self.get_color_from_name(cat)
+                        self.pen_visual.setColor(QColor(self.color_map[cat][0], self.color_map[cat][1], self.color_map[cat][2]))
                         self.ptr.setPen(self.pen_visual)
                         self.ptr.drawPoint(int(keypoint[0]*self.scale+self.left_point), int(keypoint[1]*self.scale+self.top_point))
             self.ptr.setPen(self.pen_pre)
@@ -420,12 +427,38 @@ class MainWindow(myWindow):
             write_json(self.json_list[self.current_image_id], self.json_data)
             print("Save result to: ", self.json_list[self.current_image_id])
 
+    def revocation(self):
+        print("===> Ctrl+Z")
+
+
+def load_config(path):
+    if path.split(".")[-1] == "yaml":
+        with open(path, "r", encoding="utf8") as fp:
+            config = yaml.safe_load(fp)
+    
+    return config
+
+
+def get_args():
+    perser = argparse.ArgumentParser()
+    perser.add_argument("--config", type=str, help="")
+    args = perser.parse_args()
+    
+    return args
+
 
 def main():
+    config_path = osp.join(here, "configs/default_config.yaml")
     app = QApplication(sys.argv)
     app.setApplicationName(__appname__)
     app.setWindowIcon(QIcon(osp.join(":/", here, "icons/coffe.png")))
-    window = MainWindow()
+
+    opt = get_args()
+    if  not opt.config == None:
+        config_path = opt.config
+    config = load_config(config_path)
+    print("===> config: ", config)
+    window = MainWindow(config)
     window.show()
     sys.exit(app.exec_())
 
