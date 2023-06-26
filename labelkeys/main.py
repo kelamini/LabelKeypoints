@@ -19,7 +19,7 @@ from qtpy.QtWidgets import QApplication, QMainWindow, QFileDialog, QMenu, QLabel
 from qtpy import QtWidgets
 
 from labelkeys.widgets import myWindow, __appname__
-from labelkeys.point_dialog import SelectDialog
+# from labelkeys.point_dialog import SelectDialog
 
 here = osp.dirname(osp.abspath(__file__))
 
@@ -60,7 +60,9 @@ class MainWindow(myWindow):
         self.current_image_id = 0
         self.categories_name = set()
         self.current_category_name = "person_0"
-        self.current_keypoint_name = None
+        self.current_category_ptr = 0
+        self.current_keypoint_name = "nose"
+        self.current_keypoint_ptr = 0
         self.keypoints = defaultdict(dict)
         self.categoties = defaultdict(dict)
         self.left_point = 0
@@ -76,9 +78,10 @@ class MainWindow(myWindow):
         self.pen_pre.setWidth(12)
         self.pen_pre.setBrush(Qt.red)
         self.color_map = conf["colormap"]
+        self.keypoints_name_list = [i for i in self.color_map]
 
         # dialog
-        self.dlg = SelectDialog()
+        # self.dlg = SelectDialog()
         # painter
         self.ptr = QPainter()
 
@@ -116,13 +119,12 @@ class MainWindow(myWindow):
         self.mupreviousimage.triggered.connect(self.previous_image)
         self.editmenu.addAction(self.mupreviousimage)
         self.murevocation = QtWidgets.QAction('Revocation(&Z)', self)
-        self.murevocation.setShortcut('Z')
+        self.murevocation.setShortcut('Ctrl+Z')
         self.murevocation.triggered.connect(self.revocation)
         self.editmenu.addAction(self.murevocation)
 
-        self.dlg.radiobuttondict["nose"].setChecked(True)
-        self.dlg.radiobuttondict["nose"].setStyleSheet("background-color: red")
-        self.current_keypoint_name = "nose"
+        # self.dlg.radiobuttondict["nose"].setChecked(True)
+        # self.dlg.radiobuttondict["nose"].setStyleSheet("background-color: red")
 
         if not self.labellist.items == None:
             self.labellist.itemClicked.connect(self.labellist_clicked)
@@ -204,8 +206,8 @@ class MainWindow(myWindow):
             "imageHeight": self.imageheight,
             "keypoints": defaultdict(dict),
         }
-        self.dlg.categories.setText("person_0")
-        self.update()
+        # self.dlg.categories.setText("person_0")
+        # self.update()
 
     def update_save_json(self):
         if self.current_image:
@@ -224,31 +226,47 @@ class MainWindow(myWindow):
                 # self.keypoints = defaultdict(dict)
 
     def load_json(self, filepath):
+
         if not osp.exists(filepath):
             print(f"===> {filepath} not exists, will create!")
             self.init_json()
             write_json(filepath, self.json_data)
-        self.dlg.labellist.clear()
+        # self.dlg.labellist.clear()
         self.labellist.clear()
         self.json_data = read_json(filepath)
         if "keypoints" in self.json_data:
             self.keypoints = self.json_data["keypoints"]
-            for cats, keypoints in self.keypoints.items():
-                self.categories_name.add(cats)
-                if cats in self.categories_name:
-                    self.dlg.labellist.addItem(cats)
-                for cat, keypoint in keypoints.items():
-                    self.labellist.addItem(f"${cats}@{cat}")
-                    # self.keypoints[cats][cat] = keypoint
             if len(self.keypoints) == 0:
-                self.current_category_name = "person_0"
-                self.dlg.categories.setText("person_0")
+                self.current_category_ptr = 0
+                self.current_category_name = f"person_{self.current_category_ptr}"
+                self.current_keypoint_ptr = 0
+                self.current_keypoint_name = self.keypoints_name_list[self.current_keypoint_ptr]
+            else:
+                max_category_ptr = 0
+                max_keypoint_ptr = 0
+                no_cats = list()
+                for cats, keypoints in self.keypoints.items():
+                    if len(keypoints) == 0:
+                        no_cats.append(cats)
+                        continue
+                    max_category_ptr = self.current_category_ptr if self.current_category_ptr > int(cats.split("_")[-1]) else int(cats.split("_")[-1])
+                    # print("===> max_category_ptr: ", max_category_ptr)
+                    self.current_keypoint_ptr = 0
+                    for cat, keypoint in keypoints.items():
+                        self.labellist.addItem(f"${cats}@{cat}")
+                        max_keypoint_ptr = self.current_keypoint_ptr if self.current_keypoint_ptr > self.keypoints_name_list.index(cat)+1 else self.keypoints_name_list.index(cat)+1
+                    # print("===> max_keypoint_ptr: ", max_keypoint_ptr)
+                for i in no_cats:
+                    self.keypoints.pop(i)
+                if max_keypoint_ptr >= len(self.keypoints_name_list):
+                    max_keypoint_ptr = 0
+                    max_category_ptr += 1
+                self.current_category_ptr = max_category_ptr
+                self.current_category_name = f"person_{self.current_category_ptr}"
+                self.current_keypoint_ptr = max_keypoint_ptr
+                self.current_keypoint_name = self.keypoints_name_list[self.current_keypoint_ptr]
+                self.labellist.sortItems()
                 self.update()
-        else:
-            self.keypoints = defaultdict(dict)
-        self.dlg.labellist.sortItems()
-        self.labellist.sortItems()
-        self.update()
 
     def next_image(self):
         if len(self.image_list) == 0:
@@ -261,6 +279,7 @@ class MainWindow(myWindow):
             self.load_image(self.image_list[self.current_image_id])
 
             # 加载 json 文件
+            # self.load_json(self.json_list[self.current_image_id])
             try:
                 self.load_json(self.json_list[self.current_image_id])
             except:
@@ -277,23 +296,11 @@ class MainWindow(myWindow):
             self.load_image(self.image_list[self.current_image_id])
             
             # 加载 json 文件
+            # self.load_json(self.json_list[self.current_image_id])
             try:
                 self.load_json(self.json_list[self.current_image_id])
             except:
                 print("===> Not load json file!")
-
-    def get_color_from_name(self, name):
-        color = QColor()
-        color_map = dict()
-        color_list = list()
-        for color_name in color.colorNames():
-            color_list.append(color_name)
-        step = len(color.colorNames()) // len(self.dlg.radiobuttondict)
-        for i, cat in enumerate(self.dlg.radiobuttondict):
-            color_map[cat] = color_list[i+step]
-        
-        self.color_name = color_map[name]
-        # print("color_name", self.color_name)
 
     def paintEvent(self, event):
         self.ptr.begin(self)
@@ -326,7 +333,9 @@ class MainWindow(myWindow):
                 print(f"===> Clicked left mouse: ({self.current_pos[0]}, {self.current_pos[1]})")
                 self.update()
                 # self.lastPoint = e.pos()
-                self.dialogkeypoints()
+                
+                # self.dialogkeypoints()
+                self.checklabels()
 
             if event.buttons() == Qt.RightButton:
                 self.pos_visual = 0
@@ -335,8 +344,47 @@ class MainWindow(myWindow):
                 print(f"===> Clicked left mouse: ({self.current_pos[0]}, {self.current_pos[1]})")
                 self.update()
                 # self.lastPoint = e.pos()
-                self.dialogkeypoints()
+                
+                # self.dialogkeypoints()
+                self.checklabels()
 
+    def checklabels(self):
+        if not self.current_category_name in self.keypoints:
+            self.keypoints[self.current_category_name] = dict()
+        self.keypoints[self.current_category_name][self.current_keypoint_name] = [self.current_keypoints[0]/self.scale, self.current_keypoints[1]/self.scale, self.pos_visual]
+        labeltxt = f"${self.current_category_name}@{self.current_keypoint_name}"
+        print("===> labeltxt: ", labeltxt)
+        for i in range(self.labellist.count()):
+            if self.labellist.item(i).text() == labeltxt:
+                print("===> self.labellist.items: ", self.labellist.item(i).text())
+                return
+        self.labellist.addItem(labeltxt)
+        self.labellist.sortItems()
+        self.update()
+
+        self.current_keypoint_ptr += 1
+        if self.current_keypoint_ptr >= len(self.keypoints_name_list):
+            self.current_keypoint_ptr = 0
+            self.current_category_ptr += 1
+            self.current_category_name = f"person_{self.current_category_ptr}"
+        self.current_keypoint_name = self.keypoints_name_list[self.current_keypoint_ptr]
+
+    """
+    # abolish
+    def get_color_from_name(self, name):
+        color = QColor()
+        color_map = dict()
+        color_list = list()
+        for color_name in color.colorNames():
+            color_list.append(color_name)
+        step = len(color.colorNames()) // len(self.dlg.radiobuttondict)
+        for i, cat in enumerate(self.dlg.radiobuttondict):
+            color_map[cat] = color_list[i+step]
+        
+        self.color_name = color_map[name]
+        # print("color_name", self.color_name)
+
+    # abolish
     def checkkeypoints(self, cat_name):
         self.current_keypoint_name = cat_name
         self.dlg.radiobuttondict[cat_name].setChecked(True)
@@ -344,6 +392,7 @@ class MainWindow(myWindow):
             btn.setStyleSheet("background-color: None")
         self.dlg.radiobuttondict[cat_name].setStyleSheet("background-color: red")
 
+    # abolish
     def dialogkeypoints(self):
         self.dlg.buttonBox.accepted.connect(self.validated)
         self.dlg.buttonBox.rejected.connect(self.dlg.reject)
@@ -368,6 +417,7 @@ class MainWindow(myWindow):
             print("===> Cancel!")
         self.update()
 
+    # abolish
     def validated(self):
         if not self.current_category_name in self.categories_name:
             self.categories_name.add(self.current_category_name)
@@ -377,15 +427,19 @@ class MainWindow(myWindow):
         self.dlg.accept()
         # print("===> categories_name: ", self.current_category_name)
 
+    # abolish
     def text_edited(self, text):
         self.current_category_name = text
 
+    # abolish
     def text_pressed(self):
         self.validated()
 
+    # abolish
     def change_category(self, item):
         self.dlg.categories.setText(item.text())
         self.current_category_name = item.text()
+    """
 
     def labellist_clicked(self, item):
         cats = item.text().split("@")[0].split("$")[-1]
@@ -428,7 +482,32 @@ class MainWindow(myWindow):
             print("Save result to: ", self.json_list[self.current_image_id])
 
     def revocation(self):
-        print("===> Ctrl+Z")
+        if self.current_image:
+            if self.current_keypoint_ptr <= 0:
+                if self.current_category_ptr > 0:
+                    self.current_keypoint_ptr = len(self.keypoints_name_list)-1
+                    self.current_category_ptr -= 1
+                else:
+                    return
+            else:
+                self.current_keypoint_ptr -= 1
+            self.current_category_name = f"person_{self.current_category_ptr}"
+            self.current_keypoint_name = self.keypoints_name_list[self.current_keypoint_ptr]
+            # print("===> self.current_keypoint_ptr: ", self.current_keypoint_ptr)
+            labeltxt = f"${self.current_category_name}@{self.current_keypoint_name}"
+            tamp_labellist_item = None
+            for i in range(self.labellist.count()):
+                if self.labellist.item(i).text() == labeltxt:
+                    tamp_labellist_item = i
+            if tamp_labellist_item != None:
+                self.labellist.takeItem(self.labellist.row(self.labellist.item(tamp_labellist_item)))
+            
+            self.labellist.sortItems()
+            self.update()
+            self.keypoints[self.current_category_name].pop(self.current_keypoint_name)
+            self.json_data["keypoints"] = self.keypoints
+            write_json(self.json_list[self.current_image_id], self.json_data)
+            self.current_keypoints = [0, 0]
 
 
 def load_config(path):
@@ -457,7 +536,7 @@ def main():
     if  not opt.config == None:
         config_path = opt.config
     config = load_config(config_path)
-    print("===> config: ", config)
+    # print("===> config: ", config)
     window = MainWindow(config)
     window.show()
     sys.exit(app.exec_())

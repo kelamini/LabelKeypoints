@@ -139,7 +139,7 @@ def main():
             "Programming Language :: Python :: 3.9",
             "Programming Language :: Python :: 3 :: Only",
         ],
-        package_data={"labelkeys": ["icons/*"]},
+        package_data={"labelkeys": ["icons/*"], "labelkeys": ["configs/*"]},
         entry_points={
             "console_scripts": [
                 "labelkeys=labelkeys.main:main",
