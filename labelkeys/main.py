@@ -266,7 +266,7 @@ class MainWindow(myWindow):
                 self.current_keypoint_ptr = max_keypoint_ptr
                 self.current_keypoint_name = self.keypoints_name_list[self.current_keypoint_ptr]
                 self.labellist.sortItems()
-                self.update()
+        self.update()
 
     def next_image(self):
         if len(self.image_list) == 0:
