@@ -60,18 +60,14 @@ conda create -n labelkeys python=3.7    # conda 创建环境
 conda activate labelkeys    # 激活环境
 pip install .   # 安装
 
-labelkeys   # 打开软件
-```
-
-
-## 使用步骤
-
-```bash
 # --config 用于配置关键点与标注颜色的对应表
 labelkeys --config /path/to/config.yaml
 # 若没有该参数则保持默认配置
 labelkeys
 ```
+
+
+## 使用步骤
 
 1. 打开 image 文件夹
 2. 打开 json 文件夹
