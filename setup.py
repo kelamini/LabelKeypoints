@@ -11,7 +11,7 @@ from setuptools import setup
 
 def get_version():
     filename = "labelkeys/__init__.py"
-    with open(filename) as f:
+    with open(filename, "r", encoding="utf-8") as f:
         match = re.search(
             r"""^__version__ = ['"]([^'"]*)['"]""", f.read(), re.M
         )
@@ -69,7 +69,7 @@ def get_install_requires():
 
 
 def get_long_description():
-    with open("README.md") as f:
+    with open("README.md", "r", encoding="utf-8") as f:
         long_description = f.read()
     try:
         # when this package is being released

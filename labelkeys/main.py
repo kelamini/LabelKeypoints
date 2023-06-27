@@ -71,11 +71,11 @@ class MainWindow(myWindow):
         self.current_keypoints = [0, 0]
         self.pos_visual = None
         self.pen_visual = QPen()
-        self.pen_visual.setWidth(8)
+        self.pen_visual.setWidth(6)
         self.pen_invisual = QPen()
-        self.pen_invisual.setWidth(8)
+        self.pen_invisual.setWidth(6)
         self.pen_pre = QPen()
-        self.pen_pre.setWidth(12)
+        self.pen_pre.setWidth(10)
         self.pen_pre.setBrush(Qt.red)
         self.color_map = conf["colormap"]
         self.keypoints_name_list = [i for i in self.color_map]
@@ -265,7 +265,7 @@ class MainWindow(myWindow):
                 self.current_category_name = f"person_{self.current_category_ptr}"
                 self.current_keypoint_ptr = max_keypoint_ptr
                 self.current_keypoint_name = self.keypoints_name_list[self.current_keypoint_ptr]
-                self.labellist.sortItems()
+                # self.labellist.sortItems()
         self.update()
 
     def next_image(self):
@@ -359,7 +359,7 @@ class MainWindow(myWindow):
                 print("===> self.labellist.items: ", self.labellist.item(i).text())
                 return
         self.labellist.addItem(labeltxt)
-        self.labellist.sortItems()
+        # self.labellist.sortItems()
         self.update()
 
         self.current_keypoint_ptr += 1
@@ -502,7 +502,7 @@ class MainWindow(myWindow):
             if tamp_labellist_item != None:
                 self.labellist.takeItem(self.labellist.row(self.labellist.item(tamp_labellist_item)))
             
-            self.labellist.sortItems()
+            # self.labellist.sortItems()
             self.update()
             self.keypoints[self.current_category_name].pop(self.current_keypoint_name)
             self.json_data["keypoints"] = self.keypoints
