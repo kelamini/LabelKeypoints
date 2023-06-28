@@ -73,7 +73,7 @@ class MainWindow(myWindow):
         self.pen_visual = QPen()
         self.pen_visual.setWidth(6)
         self.pen_invisual = QPen()
-        self.pen_invisual.setWidth(6)
+        self.pen_invisual.setWidth(3)
         self.pen_pre = QPen()
         self.pen_pre.setWidth(10)
         self.pen_pre.setBrush(Qt.red)
@@ -314,7 +314,8 @@ class MainWindow(myWindow):
                         # self.get_color_from_name(cat)
                         self.pen_invisual.setColor(QColor(self.color_map[cat][0], self.color_map[cat][1], self.color_map[cat][2]))
                         self.ptr.setPen(self.pen_invisual)
-                        self.ptr.drawPoint(int(keypoint[0]*self.scale+self.left_point), int(keypoint[1]*self.scale+self.top_point))
+                        # self.ptr.drawPoint(int(keypoint[0]*self.scale+self.left_point), int(keypoint[1]*self.scale+self.top_point))
+                        self.ptr.drawEllipse(int(keypoint[0]*self.scale+self.left_point-np.sqrt(4/4)), int(keypoint[1]*self.scale+self.top_point-np.sqrt(4/4)), 4, 4)
                     if keypoint[2] == 1:
                         # self.get_color_from_name(cat)
                         self.pen_visual.setColor(QColor(self.color_map[cat][0], self.color_map[cat][1], self.color_map[cat][2]))
