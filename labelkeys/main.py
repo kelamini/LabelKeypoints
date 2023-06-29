@@ -84,16 +84,20 @@ class MainWindow(myWindow):
         self.rectnumber = 0
         self.rect_left_top_x = 0
         self.rect_left_top_y = 0
+        self.centralWidget().setMouseTracking(True)
+        self.displayimage.setMouseTracking(True)
+        self.setMouseTracking(True)
+
         # dialog
         # self.dlg = SelectDialog()
         # painter
         self.ptr = QPainter()
 
-        # # 输出重定向到 textbrowser
-        # sys.stdout = EmittingStr()
-        # sys.stdout.textWritten.connect(self.outputWritten)
-        # sys.stderr = EmittingStr()
-        # sys.stderr.textWritten.connect(self.outputWritten)
+        # 输出重定向到 textbrowser
+        sys.stdout = EmittingStr()
+        sys.stdout.textWritten.connect(self.outputWritten)
+        sys.stderr = EmittingStr()
+        sys.stderr.textWritten.connect(self.outputWritten)
 
         # button
         self.openimagedir.clicked.connect(self.open_image_dir)
@@ -312,6 +316,10 @@ class MainWindow(myWindow):
             self.left_point = (abs(self.displayimage.width() - self.current_image.width())) // 2
             self.top_point = (abs(self.height() - self.current_image.height())) // 2
             self.ptr.drawPixmap(self.left_point, self.top_point, self.current_image)
+            pen_subline = QPen(Qt.red, 2, Qt.DashLine)
+            self.ptr.setPen(pen_subline)
+            self.ptr.drawLine(self.subline.x(), 0, self.subline.x(), self.height())
+            self.ptr.drawLine(0, self.subline.y(), self.width(), self.subline.y())
             for cats, keypoints in self.keypoints.items():
                 for cat, keypoint in keypoints.items():
                     if cat == "rectangle":
@@ -368,6 +376,12 @@ class MainWindow(myWindow):
                 
                 # self.dialogkeypoints()
                 self.checklabels()
+
+    def mouseMoveEvent(self, event):
+        ret = self.hasMouseTracking()
+        self.subline = event.pos()
+        # print("==========ret==============", ret)
+        self.update()
 
     def checklabels(self):
         if not self.current_category_name in self.keypoints:
