@@ -87,6 +87,7 @@ class MainWindow(myWindow):
         self.centralWidget().setMouseTracking(True)
         self.displayimage.setMouseTracking(True)
         self.setMouseTracking(True)
+        self.clear_item = None
 
         # dialog
         # self.dlg = SelectDialog()
@@ -130,6 +131,10 @@ class MainWindow(myWindow):
         self.murevocation.setShortcut('Ctrl+Z')
         self.murevocation.triggered.connect(self.revocation)
         self.editmenu.addAction(self.murevocation)
+        self.muclearobject = QtWidgets.QAction('Revocation(&A)', self)
+        self.muclearobject.setShortcut('Ctrl+A')
+        self.muclearobject.triggered.connect(self.clearobject)
+        self.editmenu.addAction(self.muclearobject)
 
         # self.dlg.radiobuttondict["nose"].setChecked(True)
         # self.dlg.radiobuttondict["nose"].setStyleSheet("background-color: red")
@@ -316,7 +321,7 @@ class MainWindow(myWindow):
             self.left_point = (abs(self.displayimage.width() - self.current_image.width())) // 2
             self.top_point = (abs(self.height() - self.current_image.height())) // 2
             self.ptr.drawPixmap(self.left_point, self.top_point, self.current_image)
-            pen_subline = QPen(Qt.red, 2, Qt.DashLine)
+            pen_subline = QPen(Qt.red, 1, Qt.DashLine)
             self.ptr.setPen(pen_subline)
             self.ptr.drawLine(self.subline.x(), 0, self.subline.x(), self.height())
             self.ptr.drawLine(0, self.subline.y(), self.width(), self.subline.y())
@@ -496,6 +501,7 @@ class MainWindow(myWindow):
 
     def labellist_clicked(self, item):
         cats = item.text().split("@")[0].split("$")[-1]
+        self.clear_item = item
         cat = item.text().split("@")[-1]
         keypoints = self.keypoints[cats][cat]
         print(f"===> {item.text()} clicked: ", keypoints)
@@ -562,6 +568,27 @@ class MainWindow(myWindow):
             write_json(self.json_list[self.current_image_id], self.json_data)
             self.current_keypoints = [0, 0]
 
+    def clearobject(self):
+        if not self.clear_item == None:
+            cats = self.clear_item.text().split("@")[0].split("$")[-1]
+            if cats in self.keypoints:
+                self.keypoints.pop(cats)
+                self.json_data["keypoints"] = self.keypoints
+                write_json(self.json_list[self.current_image_id], self.json_data)
+                for keypoints in self.keypoints_name_list:
+                    labeltxt = f"${cats}@{keypoints}"
+                    tamp_labellist_item = None
+                    for i in range(self.labellist.count()):
+                        if self.labellist.item(i).text() == labeltxt:
+                            tamp_labellist_item = i
+                    if tamp_labellist_item != None:
+                        self.labellist.takeItem(self.labellist.row(self.labellist.item(tamp_labellist_item)))
+                if cats == self.current_category_name:
+                    self.current_keypoint_ptr = 0
+                    self.current_keypoint_name = self.keypoints_name_list[self.current_keypoint_ptr]
+                self.current_keypoints = [0, 0]
+                self.clear_item = None
+                self.update()
 
 def load_config(path):
     if path.split(".")[-1] == "yaml":
