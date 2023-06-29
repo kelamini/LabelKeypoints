@@ -86,6 +86,7 @@ labelkeys
 
 ```yaml
 colormap:
+  rectangle: [0, 255, 0]
   nose: [3, 168, 158]
   lefteye: [3, 168, 158]
   righteye: [3, 168, 158]
@@ -104,6 +105,10 @@ colormap:
   leftankle: [138, 43, 255]
   rightankle: [138, 43, 255]
 ```
+
+说明：
+- 自定义标注点，只需要在 `colormap` 下添加相应的关键点名称与标注颜色值
+- 若 `colormap` 下包含 `rectangle` 键，则可以标注矩形框
 
 
 ## 快捷键

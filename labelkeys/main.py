@@ -77,19 +77,23 @@ class MainWindow(myWindow):
         self.pen_pre = QPen()
         self.pen_pre.setWidth(10)
         self.pen_pre.setBrush(Qt.red)
+        self.pen_rect = QPen()
+        self.pen_rect.setWidth(2)
         self.color_map = conf["colormap"]
         self.keypoints_name_list = [i for i in self.color_map]
-
+        self.rectnumber = 0
+        self.rect_left_top_x = 0
+        self.rect_left_top_y = 0
         # dialog
         # self.dlg = SelectDialog()
         # painter
         self.ptr = QPainter()
 
-        # 输出重定向到 textbrowser
-        sys.stdout = EmittingStr()
-        sys.stdout.textWritten.connect(self.outputWritten)
-        sys.stderr = EmittingStr()
-        sys.stderr.textWritten.connect(self.outputWritten)
+        # # 输出重定向到 textbrowser
+        # sys.stdout = EmittingStr()
+        # sys.stdout.textWritten.connect(self.outputWritten)
+        # sys.stderr = EmittingStr()
+        # sys.stderr.textWritten.connect(self.outputWritten)
 
         # button
         self.openimagedir.clicked.connect(self.open_image_dir)
@@ -106,7 +110,7 @@ class MainWindow(myWindow):
         self.muopenjsondir.setShortcut('J')
         self.muopenjsondir.triggered.connect(self.open_json_dir)
         self.filemenu.addAction(self.muopenjsondir)
-        self.musavejson = QtWidgets.QAction('SaveJson(&J)', self)
+        self.musavejson = QtWidgets.QAction('SaveJson(&S)', self)
         self.musavejson.setShortcut('Ctrl+S')
         self.musavejson.triggered.connect(self.save_current_json)
         self.filemenu.addAction(self.musavejson)
@@ -310,19 +314,35 @@ class MainWindow(myWindow):
             self.ptr.drawPixmap(self.left_point, self.top_point, self.current_image)
             for cats, keypoints in self.keypoints.items():
                 for cat, keypoint in keypoints.items():
+                    if cat == "rectangle":
+                        self.pen_rect.setColor(QColor(self.color_map[cat][0], 
+                                                      self.color_map[cat][1], 
+                                                      self.color_map[cat][2]))
+                        self.ptr.setPen(self.pen_rect)
+                        self.ptr.drawRect(int(keypoint[0]*self.scale+self.left_point),
+                                          int(keypoint[1]*self.scale+self.top_point),
+                                          int((keypoint[2]-keypoint[0])*self.scale), 
+                                          int((keypoint[3]-keypoint[1])*self.scale))
                     if keypoint[2] == 0:
                         # self.get_color_from_name(cat)
-                        self.pen_invisual.setColor(QColor(self.color_map[cat][0], self.color_map[cat][1], self.color_map[cat][2]))
+                        self.pen_invisual.setColor(QColor(self.color_map[cat][0], 
+                                                          self.color_map[cat][1], 
+                                                          self.color_map[cat][2]))
                         self.ptr.setPen(self.pen_invisual)
-                        # self.ptr.drawPoint(int(keypoint[0]*self.scale+self.left_point), int(keypoint[1]*self.scale+self.top_point))
-                        self.ptr.drawEllipse(int(keypoint[0]*self.scale+self.left_point-np.sqrt(6/4)), int(keypoint[1]*self.scale+self.top_point-np.sqrt(6/4)), 6, 6)
+                        self.ptr.drawEllipse(int(keypoint[0]*self.scale+self.left_point-np.sqrt(6/4)), 
+                                             int(keypoint[1]*self.scale+self.top_point-np.sqrt(6/4)), 
+                                             6, 6)
                     if keypoint[2] == 1:
                         # self.get_color_from_name(cat)
-                        self.pen_visual.setColor(QColor(self.color_map[cat][0], self.color_map[cat][1], self.color_map[cat][2]))
+                        self.pen_visual.setColor(QColor(self.color_map[cat][0], 
+                                                        self.color_map[cat][1], 
+                                                        self.color_map[cat][2]))
                         self.ptr.setPen(self.pen_visual)
-                        self.ptr.drawPoint(int(keypoint[0]*self.scale+self.left_point), int(keypoint[1]*self.scale+self.top_point))
+                        self.ptr.drawPoint(int(keypoint[0]*self.scale+self.left_point), 
+                                           int(keypoint[1]*self.scale+self.top_point))
             self.ptr.setPen(self.pen_pre)
-            self.ptr.drawPoint(int(self.current_keypoints[0]+self.left_point), int(self.current_keypoints[1]+self.top_point))
+            self.ptr.drawPoint(int(self.current_keypoints[0]+self.left_point), 
+                               int(self.current_keypoints[1]+self.top_point))
         self.ptr.end()
 
     def mousePressEvent(self, event):
@@ -352,7 +372,25 @@ class MainWindow(myWindow):
     def checklabels(self):
         if not self.current_category_name in self.keypoints:
             self.keypoints[self.current_category_name] = dict()
-        self.keypoints[self.current_category_name][self.current_keypoint_name] = [self.current_keypoints[0]/self.scale, self.current_keypoints[1]/self.scale, self.pos_visual]
+        
+        if self.current_keypoint_name == "rectangle":
+            self.rectnumber += 1
+            if self.rectnumber < 2:
+                self.rect_left_top_x = self.current_keypoints[0]
+                self.rect_left_top_y = self.current_keypoints[1]
+                return
+            else:
+                self.rectnumber = 0
+            self.keypoints[self.current_category_name][self.current_keypoint_name] = [self.rect_left_top_x/self.scale, 
+                                                                                      self.rect_left_top_y/self.scale, 
+                                                                                      self.current_keypoints[0]/self.scale, 
+                                                                                      self.current_keypoints[1]/self.scale, 
+                                                                                      self.pos_visual]
+        else:
+            self.keypoints[self.current_category_name][self.current_keypoint_name] = [self.current_keypoints[0]/self.scale, 
+                                                                                      self.current_keypoints[1]/self.scale, 
+                                                                                      self.pos_visual]
+        
         labeltxt = f"${self.current_category_name}@{self.current_keypoint_name}"
         print("===> labeltxt: ", labeltxt)
         for i in range(self.labellist.count()):
