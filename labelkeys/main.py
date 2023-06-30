@@ -14,7 +14,7 @@ import yaml
 from qtpy.QtGui import (QPixmap, QImage, QTextCursor, QPainter, QPen, QColor, QIcon)
 from qtpy import QtCore
 from qtpy.QtCore import Qt, QSize, QTimer, QEventLoop, QRect
-from qtpy.QtWidgets import QApplication, QMainWindow, QFileDialog, QMenu, QLabel
+from qtpy.QtWidgets import QApplication, QMainWindow, QFileDialog, QMenu, QLabel, QMessageBox
 # from PyQt5.QtWidgets import QAction
 from qtpy import QtWidgets
 
@@ -223,7 +223,11 @@ class MainWindow(myWindow):
         # self.update()
 
     def update_save_json(self):
+        state = True
         if self.current_image:
+            if self.current_keypoint_ptr != 0:
+                state = False
+                return state
             if np.sum(self.current_keypoints) > 0:
                 self.json_data = {
                     "imagePath": osp.basename(self.image_list[self.current_image_id]),
@@ -237,6 +241,7 @@ class MainWindow(myWindow):
                 # self.current_category_name = None
                 # self.current_keypoint_name = None
                 # self.keypoints = defaultdict(dict)
+        return state
 
     def load_json(self, filepath):
 
@@ -281,12 +286,19 @@ class MainWindow(myWindow):
                 # self.labellist.sortItems()
         self.update()
 
+    def show_unlabel_message(self):
+        QMessageBox.information(self, "提示", "未标注完全",
+                                QMessageBox.Yes)
+
     def next_image(self):
         if len(self.image_list) == 0:
             print("===> No loaded image...")
             return
         if self.current_image_id < len(self.image_list)-1:
-            self.update_save_json()
+            state = self.update_save_json()
+            if not state:
+                self.show_unlabel_message()
+                return
             self.current_image_id += 1
             print(f"===> ({self.current_image_id+1}/{len(self.image_list)}) Current image: {osp.basename(self.image_list[self.current_image_id])}")
             self.load_image(self.image_list[self.current_image_id])
@@ -303,7 +315,10 @@ class MainWindow(myWindow):
             print("===> No loaded image...")
             return
         if self.current_image_id > 0:
-            self.update_save_json()
+            state = self.update_save_json()
+            if not state:
+                self.show_unlabel_message()
+                return
             self.current_image_id -= 1
             print(f"===> ({self.current_image_id+1}/{len(self.image_list)}) Current image: {osp.basename(self.image_list[self.current_image_id])}")
             self.load_image(self.image_list[self.current_image_id])
@@ -314,6 +329,14 @@ class MainWindow(myWindow):
                 self.load_json(self.json_list[self.current_image_id])
             except:
                 print("===> Not load json file!")
+
+    def closeEvent(self, event):
+        if self.current_keypoint_ptr != 0:
+            a = QMessageBox.question(self, '是否退出', '还有未完成标注，确定要退出吗?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)      #"退出"代表的是弹出框的标题,"你确认退出.."表示弹出框的内容
+            if a == QMessageBox.Yes:
+                event.accept()
+            else:  
+                event.ignore()
 
     def paintEvent(self, event):
         self.ptr.begin(self)
@@ -400,11 +423,11 @@ class MainWindow(myWindow):
                 return
             else:
                 self.rectnumber = 0
-            self.keypoints[self.current_category_name][self.current_keypoint_name] = [self.rect_left_top_x/self.scale, 
-                                                                                      self.rect_left_top_y/self.scale, 
-                                                                                      self.current_keypoints[0]/self.scale, 
-                                                                                      self.current_keypoints[1]/self.scale, 
-                                                                                      self.pos_visual]
+                self.keypoints[self.current_category_name][self.current_keypoint_name] = [self.rect_left_top_x/self.scale, 
+                                                                                          self.rect_left_top_y/self.scale, 
+                                                                                          self.current_keypoints[0]/self.scale, 
+                                                                                          self.current_keypoints[1]/self.scale, 
+                                                                                          self.pos_visual]
         else:
             self.keypoints[self.current_category_name][self.current_keypoint_name] = [self.current_keypoints[0]/self.scale, 
                                                                                       self.current_keypoints[1]/self.scale, 
