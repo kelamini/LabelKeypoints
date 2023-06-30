@@ -131,7 +131,7 @@ class MainWindow(myWindow):
         self.murevocation.setShortcut('Ctrl+Z')
         self.murevocation.triggered.connect(self.revocation)
         self.editmenu.addAction(self.murevocation)
-        self.muclearobject = QtWidgets.QAction('Revocation(&A)', self)
+        self.muclearobject = QtWidgets.QAction('ClearKeypoints(&A)', self)
         self.muclearobject.setShortcut('Ctrl+A')
         self.muclearobject.triggered.connect(self.clearobject)
         self.editmenu.addAction(self.muclearobject)
