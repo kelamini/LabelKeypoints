@@ -334,6 +334,8 @@ class MainWindow(myWindow):
         if self.current_keypoint_ptr != 0:
             a = QMessageBox.question(self, '是否退出', '还有未完成标注，确定要退出吗?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)      #"退出"代表的是弹出框的标题,"你确认退出.."表示弹出框的内容
             if a == QMessageBox.Yes:
+                self.json_data["keypoints"] = self.keypoints
+                write_json(self.json_list[self.current_image_id], self.json_data)
                 event.accept()
             else:  
                 event.ignore()
@@ -411,6 +413,10 @@ class MainWindow(myWindow):
         # print("==========ret==============", ret)
         self.update()
 
+    def show_markerror_message(self):
+        QMessageBox.information(self, "提示", "矩形框标注顺序错误，请按照先左上点，再右下点的顺序标注！",
+                                QMessageBox.Yes)
+
     def checklabels(self):
         if not self.current_category_name in self.keypoints:
             self.keypoints[self.current_category_name] = dict()
@@ -423,11 +429,17 @@ class MainWindow(myWindow):
                 return
             else:
                 self.rectnumber = 0
-                self.keypoints[self.current_category_name][self.current_keypoint_name] = [self.rect_left_top_x/self.scale, 
-                                                                                          self.rect_left_top_y/self.scale, 
-                                                                                          self.current_keypoints[0]/self.scale, 
-                                                                                          self.current_keypoints[1]/self.scale, 
-                                                                                          self.pos_visual]
+                if self.current_keypoints[0]>self.rect_left_top_x and self.current_keypoints[1]>self.rect_left_top_y:
+                    self.keypoints[self.current_category_name][self.current_keypoint_name] = [self.rect_left_top_x/self.scale, 
+                                                                                              self.rect_left_top_y/self.scale, 
+                                                                                              self.current_keypoints[0]/self.scale, 
+                                                                                              self.current_keypoints[1]/self.scale, 
+                                                                                              self.pos_visual]
+                else:
+                    self.show_markerror_message()
+                    self.current_keypoints = [0, 0]
+                    self.update()
+                    return 
         else:
             self.keypoints[self.current_category_name][self.current_keypoint_name] = [self.current_keypoints[0]/self.scale, 
                                                                                       self.current_keypoints[1]/self.scale, 
